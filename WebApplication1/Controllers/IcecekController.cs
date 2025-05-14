@@ -16,7 +16,7 @@ namespace WebApplication8.Controllers
 
         }
 
-        [HttpGet("Icecek Listesi test deneme 12 12")]
+        [HttpGet("Icecek Listesi")]
         public ActionResult<IEnumerable<Icecek>> GetAllIcecekler()
         {
             var icecekler = _icecekRepository.GetAll();
