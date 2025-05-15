@@ -33,5 +33,10 @@ if (app.Environment.IsDevelopment())
 }
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapGet("/health", () => Results.Ok("OK"))
+   .WithName("Health")        // Swagger’da /health görünmesi için opsiyonel
+   .WithTags("Diagnostic");   // Ýstersen kategorize et
+
 app.Run();
 
