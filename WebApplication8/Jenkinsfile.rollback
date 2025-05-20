@@ -1,0 +1,78 @@
+﻿pipeline {
+    agent any
+
+    /* ========= PARAMETRELER ========= */
+    parameters {
+        string(name: 'SOURCE_BUILD', defaultValue: '',
+               description: 'Geri dönülecek build numarası (boş bırak → son başarılı deploy)')
+        choice(name: 'DEPLOY_STRATEGY',
+               choices: ['CopyArtifact', 'GitTag'],
+               description: 'Artefakt mı yoksa git etiketi mi kullanılacak?')
+    }
+
+    /* ========= ORTAM DEĞİŞKENLERİ ========= */
+    environment {
+        SITE_NAME   = 'apitest.com.tr'
+        IIS_PATH    = 'C:\\IIS'
+        PUBLISH_DIR = 'rollback-drop'
+    }
+
+    stages {
+
+        /* 1 — Doğru paketi getir */
+        stage('Fetch package') {
+            steps {
+                script {
+                    if (params.DEPLOY_STRATEGY == 'CopyArtifact') {
+                        copyArtifacts(
+                            projectName: 'Api-BuildDeploy',   // ana job adı
+                            selector: params.SOURCE_BUILD?.trim()
+                                      ? specific(params.SOURCE_BUILD)
+                                      : lastSuccessful(),
+                            filter: '**',
+                            target: env.PUBLISH_DIR)
+                    } else {                               // GitTag stratejisi
+                        git url: 'https://github.com/Kaandnz/Api.git',
+                            branch: "deploy-${params.SOURCE_BUILD ?: 'latest'}"
+                        bat "dotnet publish WebApplication8/WebApplication8.csproj -c Release -o ${env.PUBLISH_DIR}"
+                    }
+                }
+            }
+        }
+
+        /* 2 — IIS’i durdur */
+        stage('Stop IIS') {
+            steps {
+                bat '%windir%\\system32\\inetsrv\\appcmd stop sites %SITE_NAME%'
+                bat 'cmd /c "%windir%\\system32\\inetsrv\\appcmd stop apppool /apppool.name:%SITE_NAME%" || exit 0'
+            }
+        }
+
+        /* 3 — Paketi kopyala */
+        stage('Deploy rollback build') {
+            steps {
+                bat 'rmdir /s /q "%IIS_PATH%"'
+                bat 'mkdir "%IIS_PATH%"'
+                bat "xcopy \"${PUBLISH_DIR}\" \"%IIS_PATH%\" /e /y /i /r"
+            }
+        }
+
+        /* 4 — Siteyi başlat */
+        stage('Start IIS') {
+            steps {
+                bat '%windir%\\system32\\inetsrv\\appcmd start sites %SITE_NAME%'
+                bat '%windir%\\system32\\inetsrv\\appcmd start apppool /apppool.name:%SITE_NAME%'
+            }
+        }
+
+        /* 5 — Sağlık testi (opsiyonel) */
+        stage('Smoke test') {
+            steps {
+                powershell '''
+                $resp = Invoke-WebRequest -Uri https://apitest.com.tr/health -UseBasicParsing -TimeoutSec 10
+                if ($resp.StatusCode -ne 200) { throw "Health-check failed" }
+                '''
+            }
+        }
+    }
+}
