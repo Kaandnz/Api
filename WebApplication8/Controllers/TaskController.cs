@@ -25,7 +25,7 @@ namespace WebApplication8.Controllers
             _icecekRepository = icecekRepository;
         }
 
-        [HttpGet("Siparis Listesi")]
+        [HttpGet("SiparisListesi")]
         public ActionResult<IEnumerable<Garson>> Get()
         {
             var garsonlar = _repository.GetAll();
@@ -63,7 +63,7 @@ namespace WebApplication8.Controllers
             return Ok(siparis);
         }
 
-        [HttpPost("Siparis Ekle")]
+        [HttpPost("SiparisEkle")]
         public ActionResult Post([FromBody] Garson garson)
         {
             
@@ -90,7 +90,7 @@ namespace WebApplication8.Controllers
         }
 
 
-        [HttpPut("Siparis Guncelle")]
+        [HttpPut("SiparisGuncelle")]
         public ActionResult Put(int id, [FromBody] Garson garson)
         {
             if (id != garson.Id)
@@ -119,7 +119,7 @@ namespace WebApplication8.Controllers
             return NoContent();
         }
 
-        [HttpDelete("Siparis Sil")]
+        [HttpDelete("SiparisSil")]
         public ActionResult Delete(int id)
         {
             _repository.Delete(id);

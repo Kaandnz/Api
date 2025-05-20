@@ -15,14 +15,14 @@ namespace WebApplication8.Controllers
             _yemekRepository = yemekRepository;
         }
 
-        [HttpGet("Yemek Listesi")]
+        [HttpGet("YemekListesi")]
         public ActionResult<IEnumerable<Yemek>> GetAllYemekler()
         {
             var yemekler = _yemekRepository.GetAll();
             return Ok(yemekler);
         }
 
-        [HttpGet("Yemek Bul")]
+        [HttpGet("YemekBul")]
         public ActionResult<Yemek> GetYemekById(int id)
         {
             var yemek = _yemekRepository.GetById(id);
@@ -33,14 +33,14 @@ namespace WebApplication8.Controllers
             return Ok(yemek);
         }
 
-        [HttpPost("Yemek Ekle")]
+        [HttpPost("YemekEkle")]
         public ActionResult AddYemek([FromBody] Yemek yemek)
         {
             _yemekRepository.Add(yemek);
             return CreatedAtAction(nameof(GetAllYemekler), new { id = yemek.Id }, yemek);
         }
 
-        [HttpPut("Yemegi Guncelle")]
+        [HttpPut("YemegiGuncelle")]
         public ActionResult UpdateYemek(int id, [FromBody] Yemek yemek)
         {
             if (id != yemek.Id)
@@ -52,7 +52,7 @@ namespace WebApplication8.Controllers
             return NoContent();
         }
 
-        [HttpDelete("Yemegi Sil")]
+        [HttpDelete("YemegiSil")]
         public ActionResult DeleteYemek(int id)
         {
             _yemekRepository.Delete(id);

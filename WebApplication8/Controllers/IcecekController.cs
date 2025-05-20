@@ -15,14 +15,14 @@ namespace WebApplication8.Controllers
             _icecekRepository = icecekRepository;
         }
 
-        [HttpGet("Icecek Listesi")]
+        [HttpGet("IcecekListesi")]
         public ActionResult<IEnumerable<Icecek>> GetAllIcecekler()
         {
             var icecekler = _icecekRepository.GetAll();
             return Ok(icecekler);
         }
 
-        [HttpGet("Icecegi Bul")]
+        [HttpGet("IcecegiBul")]
         public ActionResult<Icecek> GetIcecekById(int id)
         {
             var icecek = _icecekRepository.GetById(id);
@@ -33,14 +33,14 @@ namespace WebApplication8.Controllers
             return Ok(icecek);
         }
 
-        [HttpPost("Icecek Ekle")]
+        [HttpPost("IcecekEkle")]
         public ActionResult AddIcecek([FromBody] Icecek icecek)
         {
             _icecekRepository.Add(icecek);
             return CreatedAtAction(nameof(GetAllIcecekler), new { id = icecek.Id }, icecek);
         }
 
-        [HttpPut("Icecegi Guncelle")]
+        [HttpPut("IcecegiGuncelle")]
         public ActionResult UpdateIcecek(int id, [FromBody] Icecek icecek)
         {
             if (id != icecek.Id)
@@ -52,7 +52,7 @@ namespace WebApplication8.Controllers
             return NoContent();
         }
 
-        [HttpDelete("Icecek Sil")]
+        [HttpDelete("IcecekSil")]
         public ActionResult DeleteIcecek(int id)
         {
             _icecekRepository.Delete(id);
